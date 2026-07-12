@@ -1,9 +1,10 @@
 /* =====================================================
    V3 Family Feed — Full-Featured Script
    ===================================================== */
+import { createClient } from '@supabase/supabase-js';
 
-const SB_URL = 'https://ryfrgalvifddyligvxag.supabase.co';
-const SB_KEY = 'sb_publishable_-jN5QONaO_9d23MUqir8Vg_DXDLEKdE';
+const SB_URL = import.meta.env.VITE_SUPABASE_URL;
+const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 let db, currentUser, pendingDeleteId, storyProgressTimer;
 let allPosts = [];
@@ -15,7 +16,7 @@ let realtimeChannel;
 
 /* ── Init ───────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  db = supabase.createClient(SB_URL, SB_KEY);
+  db = createClient(SB_URL, SB_KEY);
   applyTheme();
   setupAuth();
   bindGlobalUI();
