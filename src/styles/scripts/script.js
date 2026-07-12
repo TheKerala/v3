@@ -2,8 +2,8 @@
    V3 Family Feed — Full-Featured Script
    ===================================================== */
 
-const SB_URL = 'https://wsazqnlmslbkidilqlgt.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzYXpxbmxtc2xia2lkaWxxbGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4MTA2ODksImV4cCI6MjA5OTM4NjY4OX0.6EXePLFKlUBDZt1RiGZemmekzH1I62_ydmNtTJ9cH9A';
+const SB_URL = 'https://ryfrgalvifddyligvxag.supabase.co';
+const SB_KEY = 'sb_publishable_-jN5QONaO_9d23MUqir8Vg_DXDLEKdE';
 
 let db, currentUser, pendingDeleteId, storyProgressTimer;
 let allPosts = [];
