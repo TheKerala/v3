@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>V3 Family Feed</title>
+  <link rel="stylesheet" href="/src/styles/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/images/V3.png">
+  <link rel="apple-touch-icon" href="/images/V3.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Image Lightbox -->
+  <div id="lightbox" class="hidden" role="dialog" aria-modal="true">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close">
+      <span class="material-icons-round">close</span>
+    </button>
+    <img id="lightboxImg" src="" alt="Full size">
+  </div>
+
+  <!-- Story Viewer -->
+  <div id="story-viewer" class="hidden" role="dialog" aria-modal="true">
+    <div class="story-viewer-backdrop" id="storyViewerBackdrop"></div>
+    <div class="story-viewer-content">
+      <div class="story-progress-bar"><div class="story-progress-fill" id="storyProgressFill"></div></div>
+      <div class="story-viewer-header">
+        <div class="story-viewer-author">
+          <div class="story-viewer-avatar" id="storyViewerAvatar"></div>
+          <div>
+            <div class="story-viewer-name" id="storyViewerName"></div>
+            <div class="story-viewer-time" id="storyViewerTime"></div>
+          </div>
+        </div>
+        <button class="story-viewer-close" id="storyViewerClose" aria-label="Close story">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <img id="storyViewerImg" src="" alt="Story">
+      <div class="story-viewer-caption" id="storyViewerCaption"></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="main-wrapper">
+
+    <!-- Header -->
+    <header class="header-container">
+      <div class="header-logo-group">
+        <img src="/images/V3.png" alt="V3 Logo" class="logo">
+        <div class="header-text">
+          <span class="header-brand">V3 Family Feed</span>
+          <span class="tagline">The Trio's Digital Book</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle theme" aria-label="Toggle light/dark theme">
+          <span class="material-icons-round" id="themeIcon">light_mode</span>
+        </button>
+        <button class="icon-btn" id="searchToggleBtn" title="Search" aria-label="Toggle search">
+          <span class="material-icons-round">search</span>
+        </button>
+        <button class="icon-btn hidden" id="notifBtn" title="Notifications" aria-label="Notifications">
+          <span class="material-icons-round">notifications</span>
+          <span class="notif-badge hidden" id="notifBadge"></span>
+        </button>
+        <button class="icon-btn hidden" id="logoutBtn" title="Sign out" aria-label="Sign out">
+          <span class="material-icons-round">logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notifications Panel -->
+    <div id="notif-panel" class="notif-panel hidden">
+      <div class="notif-panel-header">
+        <h3>Notifications</h3>
+        <button class="icon-btn" id="closeNotifBtn" aria-label="Close notifications">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div id="notif-list" class="notif-list"></div>
+    </div>
+
+    <!-- Auth Screen -->
+    <section id="auth" aria-label="Sign in">
+      <div class="auth-inner">
+        <div class="auth-logo-wrap">
+          <img src="/images/V3.png" alt="V3 Logo" class="auth-logo">
+          <h1 class="auth-title">Welcome Back</h1>
+          <p class="auth-subtitle">Sign in to V3 Family Feed</p>
+        </div>
+
+        <div class="auth-form" id="loginForm">
+          <div class="input-group">
+            <span class="material-icons-round input-icon">email</span>
+            <input type="email" id="email" placeholder="Email address" autocomplete="email">
+          </div>
+          <div class="input-group">
+            <span class="material-icons-round input-icon">lock</span>
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+            <button class="password-toggle" id="passwordToggle" type="button" aria-label="Toggle password">
+              <span class="material-icons-round">visibility</span>
+            </button>
+          </div>
+          <button id="loginBtn" class="btn-primary">
+            <span class="material-icons-round">login</span>Sign In
+          </button>
+          <p class="auth-switch">Don't have an account? <button class="link-btn" id="switchToSignup">Sign up</button></p>
+        </div>
+
+        <div class="auth-form hidden" id="signupForm">
+          <div class="input-group">
+            <span class="material-icons-round input-icon">email</span>
+            <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email">
+          </div>
+          <div class="input-group">
+            <span class="material-icons-round input-icon">lock</span>
+            <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" autocomplete="new-password">
+          </div>
+          <button id="signupBtn" class="btn-primary">
+            <span class="material-icons-round">person_add</span>Create Account
+          </button>
+          <p class="auth-switch">Already have an account? <button class="link-btn" id="switchToLogin">Sign in</button></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Screen -->
+    <div id="app" class="hidden">
+
+      <!-- Top Action Bar -->
+      <div class="top-action-bar">
+        <div class="user-chip" id="userChip">
+          <div class="user-chip-avatar" id="userChipAvatar"></div>
+          <span class="user-chip-name" id="userChipName"></span>
+        </div>
+        <div class="top-action-buttons">
+          <button class="icon-btn pulse-btn" id="createPostBtn" title="Create Post" aria-label="Create post">
+            <span class="material-icons-round">add_box</span>
+          </button>
+          <button class="icon-btn" id="addStoryBtn" title="Add Story" aria-label="Add story">
+            <span class="material-icons-round">auto_stories</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar-wrap hidden" id="searchBarWrap">
+        <div class="search-bar">
+          <span class="material-icons-round search-icon">search</span>
+          <input type="text" id="searchInput" placeholder="Search posts, tags, events..." autocomplete="off">
+          <button class="search-clear hidden" id="searchClear" aria-label="Clear">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <nav class="tab-nav" role="tablist" aria-label="Main navigation">
+        <button class="tab-btn active" id="tab-feed-btn" data-tab="feed" role="tab" aria-selected="true">
+          <span class="material-icons-round">feed</span>
+          <span>Feed</span>
+        </button>
+        <button class="tab-btn" id="tab-events-btn" data-tab="events" role="tab" aria-selected="false">
+          <span class="material-icons-round">event</span>
+          <span>Events</span>
+          <span class="tab-badge hidden" id="events-badge"></span>
+        </button>
+        <button class="tab-btn" id="tab-gallery-btn" data-tab="gallery" role="tab" aria-selected="false">
+          <span class="material-icons-round">grid_view</span>
+          <span>Gallery</span>
+        </button>
+        <button class="tab-btn" id="tab-members-btn" data-tab="members" role="tab" aria-selected="false">
+          <span class="material-icons-round">group</span>
+          <span>Members</span>
+        </button>
+      </nav>
+
+      <!-- ── FEED TAB ─────────────────────────── -->
+      <div class="tab-panel" id="tab-feed">
+        <!-- Stories -->
+        <div class="stories-section">
+          <div class="stories-row" id="storiesRow">
+            <div class="story-add-btn" id="storyAddBtn">
+              <div class="story-add-icon"><span class="material-icons-round">add</span></div>
+              <span class="story-label">Your Story</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pinned posts -->
+        <div id="pinned-section" class="hidden">
+          <div class="section-label">
+            <span class="material-icons-round">push_pin</span> Pinned
+          </div>
+          <div id="pinned-feed"></div>
+        </div>
+
+        <!-- Feed -->
+        <div id="feed" aria-label="Family Feed"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+          <span class="material-icons-round empty-icon">photo_album</span>
+          <h3>No posts yet</h3>
+          <p>Be the first to share something!</p>
+          <button class="btn-primary empty-action" id="emptyCreateBtn">
+            <span class="material-icons-round">add</span>Create Post
+          </button>
+        </div>
+      </div>
+
+      <!-- ── EVENTS TAB ───────────────────────── -->
+      <div class="tab-panel hidden" id="tab-events">
+        <div class="events-header">
+          <h2 class="section-title">Family Events</h2>
+          <button class="btn-primary btn-sm" id="createEventBtn">
+            <span class="material-icons-round">add</span>New Event
+          </button>
+        </div>
+        <div id="events-list"></div>
+        <div class="empty-state hidden" id="eventsEmptyState">
+          <span class="material-icons-round empty-icon">event_busy</span>
+          <h3>No upcoming events</h3>
+          <p>Plan something fun for the family!</p>
+          <button class="btn-primary empty-action" id="eventsEmptyCreateBtn">
+            <span class="material-icons-round">add</span>Create Event
+          </button>
+        </div>
+      </div>
+
+      <!-- ── GALLERY TAB ──────────────────────── -->
+      <div class="tab-panel hidden" id="tab-gallery">
+        <div class="gallery-header">
+          <h2 class="section-title">Photo Gallery</h2>
+          <div class="gallery-controls">
+            <button class="icon-btn gallery-size-btn active" id="gallerySmallBtn" title="3 columns">
+              <span class="material-icons-round">grid_on</span>
+            </button>
+            <button class="icon-btn gallery-size-btn" id="galleryLargeBtn" title="2 columns">
+              <span class="material-icons-round">view_module</span>
+            </button>
+          </div>
+        </div>
+        <div id="gallery-grid" class="gallery-grid gallery-3col"></div>
+        <div class="empty-state hidden" id="galleryEmptyState">
+          <span class="material-icons-round empty-icon">collections</span>
+          <h3>No photos yet</h3>
+          <p>Share posts with photos to fill the gallery!</p>
+        </div>
+      </div>
+
+      <!-- ── MEMBERS TAB ──────────────────────── -->
+      <div class="tab-panel hidden" id="tab-members">
+        <div class="members-header">
+          <h2 class="section-title">Family Members</h2>
+        </div>
+        <div id="members-list"></div>
+      </div>
+
+    </div><!-- #app -->
+  </main>
+
+  <!-- ── MODALS ─────────────────────────────────── -->
+
+  <!-- Post Creator / Editor Modal -->
+  <div id="post-creator-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="postModalTitle">New Post</h2>
+        <button class="modal-close-btn" id="closePostModal" aria-label="Close">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="modal-author-row" id="postModalAuthor"></div>
+      <textarea id="postContent" placeholder="What's happening today?" rows="4"></textarea>
+
+      <!-- Tag Selector -->
+      <div class="tag-selector">
+        <p class="tag-label">Add a tag</p>
+        <div class="tag-options" id="tagOptions">
+          <button class="tag-option" data-tag="Birthday">🎂 Birthday</button>
+          <button class="tag-option" data-tag="Vacation">✈️ Vacation</button>
+          <button class="tag-option" data-tag="Milestone">🏆 Milestone</button>
+          <button class="tag-option" data-tag="Funny">😂 Funny</button>
+          <button class="tag-option" data-tag="Food">🍕 Food</button>
+          <button class="tag-option" data-tag="News">📰 News</button>
+          <button class="tag-option" data-tag="Love">❤️ Love</button>
+          <button class="tag-option" data-tag="Sport">⚽ Sport</button>
+        </div>
+      </div>
+
+      <div class="image-preview-wrap hidden" id="imagePreviewWrap">
+        <img id="imagePreview" src="" alt="Preview">
+        <button class="remove-image-btn" id="removeImageBtn" aria-label="Remove image">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <label for="postImage" class="file-upload-btn" title="Attach photo">
+          <span class="material-icons-round">photo_camera</span><span>Photo</span>
+        </label>
+        <input type="file" id="postImage" accept="image/*" style="display:none">
+        <button id="postBtn" class="btn-primary post-submit-btn">
+          <span class="material-icons-round">send</span>Share
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Story Creator Modal -->
+  <div id="story-creator-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Story</h2>
+        <button class="modal-close-btn" id="closeStoryModal" aria-label="Close">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="story-upload-zone" id="storyUploadZone">
+        <span class="material-icons-round story-upload-icon">add_photo_alternate</span>
+        <p>Tap to choose a photo</p>
+        <input type="file" id="storyImage" accept="image/*" style="display:none">
+      </div>
+      <div class="story-img-preview-wrap hidden" id="storyImgPreviewWrap">
+        <img id="storyImgPreview" src="" alt="Story preview">
+        <button class="remove-image-btn" id="removeStoryImageBtn" aria-label="Remove">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="input-group">
+        <span class="material-icons-round input-icon">edit</span>
+        <input type="text" id="storyCaption" placeholder="Add a caption..." maxlength="150">
+      </div>
+      <button id="storyBtn" class="btn-primary post-submit-btn">
+        <span class="material-icons-round">auto_stories</span>Share Story
+      </button>
+    </div>
+  </div>
+
+  <!-- Event Creator Modal -->
+  <div id="event-creator-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">New Event</h2>
+        <button class="modal-close-btn" id="closeEventModal" aria-label="Close">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="input-group">
+        <span class="material-icons-round input-icon">celebration</span>
+        <input type="text" id="eventTitle" placeholder="Event name" maxlength="100">
+      </div>
+      <div class="input-group">
+        <span class="material-icons-round input-icon">schedule</span>
+        <input type="datetime-local" id="eventDate">
+      </div>
+      <div class="input-group">
+        <span class="material-icons-round input-icon">place</span>
+        <input type="text" id="eventLocation" placeholder="Location (optional)" maxlength="200">
+      </div>
+      <div class="input-group">
+        <span class="material-icons-round input-icon">notes</span>
+        <input type="text" id="eventDesc" placeholder="Description (optional)" maxlength="300">
+      </div>
+      <button id="eventBtn" class="btn-primary post-submit-btn">
+        <span class="material-icons-round">event</span>Create Event
+      </button>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card confirm-modal">
+      <span class="material-icons-round confirm-icon">delete_outline</span>
+      <h3>Delete Post?</h3>
+      <p>This can't be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn-ghost" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="/src/styles/scripts/script.js"></script>
+</body>
+</html>
