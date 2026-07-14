@@ -6,6 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 const SB_URL = import.meta.env.VITE_SUPABASE_URL;
 const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// At the top of script.js
+import { supabase } from '../supabaseClient.js';
+// Now you can use it directly:
+
 let db, currentUser, pendingDeleteId, storyProgressTimer;
 let allPosts = [];
 let currentSearch = '';
