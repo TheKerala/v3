@@ -1014,8 +1014,13 @@ document.addEventListener('click', e => {
   }
 });
 
-/* ── Realtime ────────────────────────────────────── */
+// ── Realtime ──────────────────────────────────────
+let realtimeChannel = null;
+
 function setupRealtime() {
+  // Always teardown before creating a new channel
+  teardownRealtime();
+
   realtimeChannel = db.channel('v3-feed')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async () => {
       await loadFeed();
@@ -1029,7 +1034,13 @@ function setupRealtime() {
     })
     .subscribe();
 }
-function teardownRealtime() { if (realtimeChannel) db.removeChannel(realtimeChannel); }
+
+function teardownRealtime() {
+  if (realtimeChannel) {
+    db.removeChannel(realtimeChannel);
+    realtimeChannel = null; // reset reference
+  }
+}
 
 /* ── Skeletons ───────────────────────────────────── */
 function showSkeletons() {
